@@ -3,9 +3,9 @@
 #include "browser_view.h"
 
 #include <QPointer>
+#include <QWebEnginePage>
 
 QT_BEGIN_NAMESPACE
-class QWebEnginePage;
 class QWebEngineProfile;
 class QWebEngineView;
 QT_END_NAMESPACE

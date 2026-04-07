@@ -55,9 +55,7 @@ QtWebEngineBrowserView::QtWebEngineBrowserView(
 {
     view_ = new QWebEngineView(parentWidget);
     page_ = new QtWebEngineBrowserPage(session, view_);
-    if (profile) {
-        page_->setProfile(profile);
-    }
+    Q_UNUSED(profile);
     view_->setPage(page_);
 
     connect(view_, &QWebEngineView::urlChanged, this, &BrowserView::urlChanged);
@@ -165,7 +163,7 @@ void QtWebEngineBrowserView::openDevTools()
 
 QWebEnginePage *QtWebEngineBrowserView::page() const
 {
-    return page_;
+    return page_.data();
 }
 
 }  // namespace seb::browser::engine

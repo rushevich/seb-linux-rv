@@ -2,6 +2,7 @@
 
 #include "browser/request_interceptor.h"
 #include "browser/engine/qtwebengine_browser_view.h"
+#include "browser/engine/wpe_browser_view.h"
 #include "applications/application_manager.h"
 #include "browser_window.h"
 
@@ -29,6 +30,7 @@
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QTimer>
+#include <QtGlobal>
 
 namespace {
 
@@ -277,6 +279,15 @@ QWebEngineProfile *SebSession::profile() const
 
 std::unique_ptr<seb::browser::engine::BrowserView> SebSession::createBrowserView(QWidget *parentWidget)
 {
+    const QString engine = qEnvironmentVariable("SEB_BROWSER_ENGINE").trimmed().toLower();
+    if (engine == QStringLiteral("wpe")) {
+#if defined(SEB_USE_WPE)
+        return std::make_unique<seb::browser::engine::WPEBrowserView>(parentWidget);
+#else
+        qWarning() << "SEB_BROWSER_ENGINE=wpe requested but this build is not compiled with SEB_USE_WPE; falling back to QtWebEngine.";
+#endif
+    }
+
     return std::make_unique<seb::browser::engine::QtWebEngineBrowserView>(*this, profile_.data(), parentWidget);
 }
 
