@@ -1,5 +1,0 @@
-# Hashes of file build rules.
-8f89c15f136c00fcf3cf32a35f1fd23c .qt/qml_imports/safe-exam-browser_build.cmake
-5a2291bd389a03df66ceddef4c5c728c CMakeFiles/safe-exam-browser_autogen
-5a2291bd389a03df66ceddef4c5c728c CMakeFiles/safe-exam-browser_qmlimportscan
-eb7ee0078a3f3b1f9d6e0d3b18a16310 safe-exam-browser_autogen/timestamp

@@ -7,5 +7,6 @@
 /ui_*
 /qrc_*
 /build/
+/build-cmake/
 /dist/
 /windows/
