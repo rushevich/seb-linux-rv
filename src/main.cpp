@@ -14,6 +14,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QFileInfo>
+#include <QtGlobal>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -236,6 +237,12 @@ void applyEarlyEnvironment(int argc, char *argv[])
     // Prefer WebKit's built-in bubblewrap sandbox (where available) for subprocesses.
     // This complements SEB-side restrictions; final filesystem policy is applied in the WebKit layer.
     qputenv("WEBKIT_FORCE_SANDBOX", "1");
+
+    // GPU/EGL hints for embedded deployments (can be overridden by the environment):
+    // JH7110 typically exposes a DRM render node; WPE uses these to allocate gpu buffers.
+    if (!qEnvironmentVariableIsSet("WPE_DRM_RENDER_NODE")) {
+        qputenv("WPE_DRM_RENDER_NODE", "/dev/dri/renderD128");
+    }
 #endif
 
     seb::browser::applyWebEngineEnvironment(settings);
