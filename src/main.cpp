@@ -226,6 +226,18 @@ void applyEarlyEnvironment(int argc, char *argv[])
         qputenv("QTWEBENGINE_CHROMIUM_FLAGS", "--no-sandbox");
     }
 
+#if defined(RISCV_HARDENED_BUILD)
+    // RISC-V hardening defaults for WPE/WebKit bring-up:
+    // - Disable JavaScriptCore JIT for stability/security.
+    // - Enforce the fdo backend (Wayland/FD) for WPE.
+    qputenv("JavaScriptCoreUseJIT", "0");
+    qputenv("WPE_BACKEND", "fdo");
+
+    // Prefer WebKit's built-in bubblewrap sandbox (where available) for subprocesses.
+    // This complements SEB-side restrictions; final filesystem policy is applied in the WebKit layer.
+    qputenv("WEBKIT_FORCE_SANDBOX", "1");
+#endif
+
     seb::browser::applyWebEngineEnvironment(settings);
 }
 
