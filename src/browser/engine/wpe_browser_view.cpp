@@ -43,6 +43,13 @@ WPEBrowserView::WPEBrowserView(QWidget *parentWidget, QObject *parent)
             currentTitle_ = title;
             emit titleChanged(title);
         });
+
+        // Basic navigation state is exposed as properties on WPEView (canGoBack/canGoForward/loading/loadProgress).
+        // We don't have dedicated signals in the abstraction yet, but we keep our query methods consistent.
+        connect(wpeRootObject_, SIGNAL(loadingChanged(QObject*)), this, [this] {
+            // no-op: used to trigger property updates in canGoBack/canGoForward.
+            Q_UNUSED(this);
+        });
     }
 #else
     placeholder_ = new QLabel(QStringLiteral("WPE backend not enabled in this build."), parentWidget);
@@ -78,12 +85,20 @@ QString WPEBrowserView::title() const
 
 bool WPEBrowserView::canGoBack() const
 {
+#if defined(SEB_USE_WPE)
+    return wpeRootObject_ ? wpeRootObject_->property("canGoBack").toBool() : false;
+#else
     return false;
+#endif
 }
 
 bool WPEBrowserView::canGoForward() const
 {
+#if defined(SEB_USE_WPE)
+    return wpeRootObject_ ? wpeRootObject_->property("canGoForward").toBool() : false;
+#else
     return false;
+#endif
 }
 
 void WPEBrowserView::load(const QUrl &url)
