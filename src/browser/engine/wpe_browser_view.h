@@ -6,6 +6,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QQuickWidget;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -42,9 +43,10 @@ private:
     bool uploadsAllowed_ = true;
 
 #if defined(SEB_USE_WPE)
-    // Real WPE-backed members go here once WPE Qt headers/libs are enabled.
-    // We keep this behind a build flag so the default QtWebEngine build still works.
-    QPointer<QWidget> wpeWidget_;
+    // Implemented via QQuickWidget embedding org.wpewebkit.qtwpe's WPEView (Qt Quick item),
+    // so we can keep the rest of the app on Qt Widgets.
+    QPointer<QQuickWidget> quickWidget_;
+    QPointer<QObject> wpeRootObject_;
     QUrl currentUrl_;
     QString currentTitle_;
 #else

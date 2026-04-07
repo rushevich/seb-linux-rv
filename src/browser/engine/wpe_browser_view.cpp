@@ -1,7 +1,15 @@
 #include "wpe_browser_view.h"
 
 #include <QLabel>
+#include <QMetaObject>
+#include <QVariant>
 #include <QUrl>
+
+#if defined(SEB_USE_WPE)
+#include <QQuickWidget>
+#include <QQmlContext>
+#include <QQmlEngine>
+#endif
 
 namespace seb::browser::engine {
 
@@ -9,9 +17,33 @@ WPEBrowserView::WPEBrowserView(QWidget *parentWidget, QObject *parent)
     : BrowserView(parent)
 {
 #if defined(SEB_USE_WPE)
-    Q_UNUSED(parentWidget);
-    // When SEB_USE_WPE is enabled we will construct the real WPEView widget here.
-    wpeWidget_ = new QWidget(parentWidget);
+    quickWidget_ = new QQuickWidget(parentWidget);
+    quickWidget_->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+    // QML type is documented as WPEView in module org.wpewebkit.qtwpe.
+    // We keep it inline to avoid an extra QML file in early bring-up.
+    static const char kWpeQml[] =
+        "import QtQuick 2.15\n"
+        "import org.wpewebkit.qtwpe 1.0\n"
+        "WPEView {\n"
+        "  id: wpe\n"
+        "}\n";
+
+    quickWidget_->setSource(QUrl(QStringLiteral("data:text/plain,") + QString::fromLatin1(kWpeQml)));
+    wpeRootObject_ = quickWidget_->rootObject();
+
+    if (wpeRootObject_) {
+        connect(wpeRootObject_, SIGNAL(urlChanged()), this, [this] {
+            const QUrl url = wpeRootObject_->property("url").toUrl();
+            currentUrl_ = url;
+            emit urlChanged(url);
+        });
+        connect(wpeRootObject_, SIGNAL(titleChanged()), this, [this] {
+            const QString title = wpeRootObject_->property("title").toString();
+            currentTitle_ = title;
+            emit titleChanged(title);
+        });
+    }
 #else
     placeholder_ = new QLabel(QStringLiteral("WPE backend not enabled in this build."), parentWidget);
     placeholder_->setWordWrap(true);
@@ -24,7 +56,7 @@ WPEBrowserView::~WPEBrowserView() = default;
 QWidget *WPEBrowserView::widget()
 {
 #if defined(SEB_USE_WPE)
-    return wpeWidget_;
+    return quickWidget_;
 #else
     return placeholder_;
 #endif
@@ -60,7 +92,9 @@ void WPEBrowserView::load(const QUrl &url)
     emit urlChanged(url);
 
 #if defined(SEB_USE_WPE)
-    // TODO (WPE): call WPEView::load(url)
+    if (wpeRootObject_) {
+        wpeRootObject_->setProperty("url", url);
+    }
 #else
     if (placeholder_) {
         placeholder_->setText(QStringLiteral("WPE backend not enabled in this build.\n\nRequested URL:\n%1").arg(url.toString()));
@@ -68,9 +102,32 @@ void WPEBrowserView::load(const QUrl &url)
 #endif
 }
 
-void WPEBrowserView::back() {}
-void WPEBrowserView::forward() {}
-void WPEBrowserView::reload() {}
+void WPEBrowserView::back()
+{
+#if defined(SEB_USE_WPE)
+    if (wpeRootObject_) {
+        QMetaObject::invokeMethod(wpeRootObject_, "goBack", Qt::QueuedConnection);
+    }
+#endif
+}
+
+void WPEBrowserView::forward()
+{
+#if defined(SEB_USE_WPE)
+    if (wpeRootObject_) {
+        QMetaObject::invokeMethod(wpeRootObject_, "goForward", Qt::QueuedConnection);
+    }
+#endif
+}
+
+void WPEBrowserView::reload()
+{
+#if defined(SEB_USE_WPE)
+    if (wpeRootObject_) {
+        QMetaObject::invokeMethod(wpeRootObject_, "reload", Qt::QueuedConnection);
+    }
+#endif
+}
 
 void WPEBrowserView::setNavigationPolicy(NavigationPolicy policy)
 {
