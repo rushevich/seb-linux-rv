@@ -42,6 +42,7 @@ jobs:
             qt6-base-dev \
             qt6-tools-dev-tools \
             qt6-webengine-dev \
+            pkg-config \
             shared-mime-info \
             zlib1g-dev
 

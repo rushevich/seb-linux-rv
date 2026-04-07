@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_DIR="${ROOT_DIR}"
 VERSION="${1:-0.1.0}"
+ARCH="${2:-amd64}"
 BUILD_DIR="${PROJECT_DIR}/build"
 STAGE_DIR="${PROJECT_DIR}/dist/stage"
 ARTIFACT_DIR="${PROJECT_DIR}/dist"
@@ -24,7 +25,7 @@ Package: ${PACKAGE_NAME}
 Version: ${VERSION}
 Section: education
 Priority: optional
-Architecture: amd64
+Architecture: ${ARCH}
 Maintainer: SEB Linux contributors
 Depends: libqt6core6, libqt6gui6, libqt6network6, libqt6webenginecore6, libqt6webenginewidgets6, shared-mime-info, pkexec
 Description: Safe Exam Browser Linux Qt port
@@ -33,7 +34,7 @@ EOF
 
 cp -a "${STAGE_DIR}/usr" "${ARTIFACT_DIR}/debian/"
 if command -v dpkg-deb >/dev/null 2>&1; then
-  dpkg-deb --build "${ARTIFACT_DIR}/debian" "${ARTIFACT_DIR}/${PACKAGE_NAME}_${VERSION}_amd64.deb"
+  dpkg-deb --build "${ARTIFACT_DIR}/debian" "${ARTIFACT_DIR}/${PACKAGE_NAME}_${VERSION}_${ARCH}.deb"
 else
   echo "warning: dpkg-deb not found; skipping .deb package build" >&2
 fi

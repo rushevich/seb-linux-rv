@@ -1,0 +1,10 @@
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/safe-exam-browser.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/safe-exam-browser_qmlimportscan.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/edit_cache.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/rebuild_cache.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/list_install_components.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/install.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/install/local.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/install/strip.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/safe-exam-browser_autogen_timestamp_deps.dir
+/home/georger/Coding/seb-linux/build-cmake/CMakeFiles/safe-exam-browser_autogen.dir

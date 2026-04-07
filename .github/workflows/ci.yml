@@ -22,10 +22,18 @@ jobs:
             qt6-base-dev \
             qt6-tools-dev-tools \
             qt6-webengine-dev \
+            pkg-config \
             zlib1g-dev
 
       - name: Build
         run: ./scripts/build.sh
+
+      - name: CMake configure (optional WPE)
+        run: |
+          cmake -S . -B build-cmake \
+            -DSEB_BROWSER_ENGINE_WPE=OFF \
+            -DRISCV_HARDENED_BUILD=OFF
+          cmake --build build-cmake -j
 
       - name: Verify version
         env:
