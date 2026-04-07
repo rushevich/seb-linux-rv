@@ -3,6 +3,7 @@
 #include "browser/request_interceptor.h"
 #include "browser/engine/qtwebengine_browser_view.h"
 #include "browser/engine/wpe_browser_view.h"
+#include "browser/memory_pressure_monitor.h"
 #include "applications/application_manager.h"
 #include "browser_window.h"
 
@@ -126,6 +127,20 @@ SebSession::SebSession(const seb::SebSettings &settings, ResourceOpener opener, 
     if (settings_.browser.deleteCookiesOnStartup) {
         profile_->cookieStore()->deleteAllCookies();
     }
+
+    // Aggressive memory policy for embedded targets: when used RAM exceeds 75%,
+    // trigger best-effort cache reclamation to reduce the likelihood of OOM kills.
+    memoryPressureMonitor_ = std::make_unique<seb::browser::MemoryPressureMonitor>(this);
+    memoryPressureMonitor_->setThresholdPercent(75);
+    connect(memoryPressureMonitor_.get(), &seb::browser::MemoryPressureMonitor::memoryPressureDetected, this,
+        [this](double usedFraction, unsigned long long totalBytes) {
+            Q_UNUSED(totalBytes);
+            qWarning() << "Memory pressure detected:" << (usedFraction * 100.0) << "% used; clearing HTTP cache.";
+            if (profile_) {
+                profile_->clearHttpCache();
+            }
+        });
+    memoryPressureMonitor_->start();
 
     applicationManager_ = std::make_unique<seb::applications::ApplicationManager>(settings_.applications, this);
     connect(applicationManager_.get(), &seb::applications::ApplicationManager::applicationsChanged, this, &SebSession::externalApplicationsChanged);

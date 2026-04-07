@@ -30,6 +30,9 @@ class QWebEngineProfile;
 QT_END_NAMESPACE
 
 class BrowserWindow;
+namespace seb::browser {
+class MemoryPressureMonitor;
+}
 
 class SebSession : public QObject
 {
@@ -78,6 +81,7 @@ private:
     seb::SebSettings settings_;
     QScopedPointer<QWebEngineProfile> profile_;
     QScopedPointer<seb::browser::RequestInterceptor> interceptor_;
+    std::unique_ptr<seb::browser::MemoryPressureMonitor> memoryPressureMonitor_;
     std::unique_ptr<QTemporaryDir> profileDirectory_;
     std::unique_ptr<QTemporaryDir> downloadDirectory_;
     std::unique_ptr<seb::applications::ApplicationManager> applicationManager_;
